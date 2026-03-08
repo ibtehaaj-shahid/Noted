@@ -140,7 +140,7 @@ fun NotesScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = if (isSearchActive) 0.dp else 16.dp),
-                    placeholder = { Text(stringResource(R.string.search_notes)) },
+                    placeholder = { Text("Search notes") },
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
@@ -157,23 +157,49 @@ fun NotesScreen(
                             }
                         }
                     }
-                ) {}
+                ) {
+                    if (uiState.notes.isEmpty()) {
+                        EmptyState(
+                            isSearchActive = isSearchActive,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        NotesGrid(
+                            notes = uiState.notes,
+                            onNoteClick = onNoteClick,
+                            onTogglePin = viewModel::togglePinStatus,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+            }
+            if (!isSearchActive) {
+                NotesView(uiState.notes, false, onNoteClick, viewModel::togglePinStatus)
             }
 
-            if (uiState.notes.isEmpty()) {
-                EmptyState(
-                    isSearchActive = isSearchActive,
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else {
-                NotesGrid(
-                    notes = uiState.notes,
-                    onNoteClick = onNoteClick,
-                    onTogglePin = viewModel::togglePinStatus,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
         }
+    }
+}
+
+@Composable
+private fun NotesView(
+    notes: List<Note>,
+    isSearchActive: Boolean,
+    onNoteClick: (Long) -> Unit,
+    onTogglePin: (Long, Boolean) -> Unit
+) {
+    if (notes.isEmpty()) {
+        EmptyState(
+            isSearchActive = isSearchActive,
+            modifier = Modifier.fillMaxSize()
+        )
+    } else {
+        NotesGrid(
+            notes = notes,
+            onNoteClick = onNoteClick,
+            onTogglePin = onTogglePin,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
@@ -298,6 +324,7 @@ private fun NoteCard(
         }
     }
 }
+
 
 @Composable
 private fun EmptyState(
